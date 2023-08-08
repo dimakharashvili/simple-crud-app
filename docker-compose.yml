@@ -1,0 +1,28 @@
+version: '3.9'
+services:
+
+  postgres-test:
+    container_name: postgres-test
+    image: postgres
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'pass'
+      POSTGRES_DB: 'postgres'
+    ports:
+      - 5432:5432
+
+  integration-test:
+    build:
+      context: .
+      dockerfile: internal/repo/it/Dockerfile
+    container_name: integration-test
+    image: integration-test
+    environment:
+      PG_URL: 'postgres://user:pass@postgres-test:5432/postgres?search_path=test'
+    depends_on:
+      - postgres-test
+      
+volumes:
+  pg-data:
